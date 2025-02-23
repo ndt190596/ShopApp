@@ -10,6 +10,7 @@ import com.luv2code.shop_app.models.ProductImage;
 import com.luv2code.shop_app.repositories.CategoryRepository;
 import com.luv2code.shop_app.repositories.ProductImageRepository;
 import com.luv2code.shop_app.repositories.ProductRepository;
+import com.luv2code.shop_app.responses.ProductResponse;
 import com.luv2code.shop_app.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,8 +50,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest);
+    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+        return productRepository.findAll(pageRequest).map(ProductResponse::fromProduct);
     }
 
     @Override
