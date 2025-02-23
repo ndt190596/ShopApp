@@ -1,6 +1,7 @@
 package com.luv2code.shop_app.controllers;
 
 import com.github.javafaker.Faker;
+import com.luv2code.shop_app.components.LocalizationUtils;
 import com.luv2code.shop_app.dtos.ProductDTO;
 import com.luv2code.shop_app.dtos.ProductImageDTO;
 import com.luv2code.shop_app.files.ByteArrayMultipartFile;
@@ -9,6 +10,7 @@ import com.luv2code.shop_app.models.ProductImage;
 import com.luv2code.shop_app.responses.ProductListResponse;
 import com.luv2code.shop_app.responses.ProductResponse;
 import com.luv2code.shop_app.services.ProductService;
+import com.luv2code.shop_app.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,6 +43,7 @@ import java.util.UUID;
 public class ProductController {
 
     private final ProductService productService;
+    private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
     public ResponseEntity<?> createProduct(
@@ -71,6 +74,10 @@ public class ProductController {
         try {
             Product existingProduct = productService.getProductById(productId);
             files = files == null ? new ArrayList<MultipartFile>() : files;
+            if(files.size() > ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
+                return ResponseEntity.badRequest().body(localizationUtils
+                        .getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_MAX_5));
+            }
             List<ProductImage> productImages = new ArrayList<>();
             for (MultipartFile file : files) {
                 if (file.getSize() == 0) {
@@ -79,11 +86,12 @@ public class ProductController {
                 // Kiểm tra kích thước file và định dạng
                 if (file.getSize() > 10 * 1024 * 1024) { // Kích thước > 10MB
                     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                            .body("File is too large! Maximum size is 10MB");
+                            .body(localizationUtils
+                                    .getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_LARGE));
                 }
                 if (!isImageFile(file)) {
                     return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                            .body("File must be an image");
+                            .body(localizationUtils.getLocalizedMessage(MessageKeys.UPLOAD_IMAGES_FILE_MUST_BE_IMAGE));
                 }
                 // Lưu file và cập nhật thumbnail trong DTO
                 String filename = storeFile(file);
@@ -211,4 +219,16 @@ public class ProductController {
         return ResponseEntity.ok("Fake Products created successfully");
     }
 
+    //update a product
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable long id,
+            @RequestBody ProductDTO productDTO) {
+        try {
+            Product updatedProduct = productService.updateProduct(id, productDTO);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

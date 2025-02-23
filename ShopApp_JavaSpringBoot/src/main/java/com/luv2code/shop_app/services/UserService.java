@@ -6,5 +6,5 @@ import com.luv2code.shop_app.models.User;
 
 public interface UserService {
     User createUser(UserDTO userDTO) throws Exception;
-    String login(String phoneNumber, String password) throws Exception;
+    String login(String phoneNumber, String password, Long roleId) throws Exception;
 }

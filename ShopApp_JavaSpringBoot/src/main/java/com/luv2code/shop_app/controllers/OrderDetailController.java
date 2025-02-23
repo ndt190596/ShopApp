@@ -1,10 +1,12 @@
 package com.luv2code.shop_app.controllers;
 
+import com.luv2code.shop_app.components.LocalizationUtils;
 import com.luv2code.shop_app.dtos.OrderDetailDTO;
 import com.luv2code.shop_app.exceptions.DataNotFoundException;
 import com.luv2code.shop_app.models.OrderDetail;
 import com.luv2code.shop_app.responses.OrderDetailResponse;
 import com.luv2code.shop_app.services.OrderDetailService;
+import com.luv2code.shop_app.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderDetailController {
     private final OrderDetailService orderDetailService;
+    private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(
@@ -76,6 +79,8 @@ public class OrderDetailController {
     public ResponseEntity<?> deleteOrderDetail(
             @Valid @PathVariable("id") Long id) {
         orderDetailService.deleteById(id);
-        return ResponseEntity.ok().body("Delete Order detail with id : "+id+" successfully");
+        return ResponseEntity.ok()
+                .body(localizationUtils
+                        .getLocalizedMessage(MessageKeys.DELETE_ORDER_DETAIL_SUCCESSFULLY));
     }
 }
