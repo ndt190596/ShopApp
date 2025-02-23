@@ -5,6 +5,6 @@ import com.luv2code.shop_app.exceptions.DataNotFoundException;
 import com.luv2code.shop_app.models.User;
 
 public interface UserService {
-    User createUser(UserDTO userDTO) throws DataNotFoundException;
-    String login(String phoneNumber, String password);
+    User createUser(UserDTO userDTO) throws Exception;
+    String login(String phoneNumber, String password) throws Exception;
 }
